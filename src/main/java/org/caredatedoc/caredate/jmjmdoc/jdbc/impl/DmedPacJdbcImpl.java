@@ -67,132 +67,120 @@ public class DmedPacJdbcImpl extends Conexion<DatosMedPac> implements DmedPacJdb
 
 
     @Override
-    public boolean save(DatosMedPac datosMedPac) {
-        PreparedStatement preparedStatement = null;
-        String query = "INSERT INTO datosPaciente (ALERGIAS, MEDICAMENTOS, CIRUGIASPREVIAS, TIPOSANGRE, ENFERMEDADESCRONICAS) VALUES (?, ?, ?, ?, ?)";
+    public boolean save(DatosMedPac datosMedPac, int idPaciente) {
+        String query = "INSERT INTO datosPaciente (ALERGIAS, MEDICAMENTOS, CIRUGIASPREVIAS, TIPOSANGRE, ENFERMEDADESCRONICAS, IDPACIENTE) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
         try {
-            preparedStatement.setString(1,datosMedPac.getAlergias());
-            preparedStatement.setString(2,datosMedPac.getMedicamentos());
-            preparedStatement.setString(3,datosMedPac.getCirugiasPre());
-            preparedStatement.setString(4,datosMedPac.getTipoSangre());
-            preparedStatement.setString(5,datosMedPac.getEnfCronicas());
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        int res = 0;
 
-        try {
-            if (!openConnection()) {
-                System.out.println("ERROR DE CONEXIÓN");
+            try {
+                if (!openConnection()) {
+                    System.out.println("ERROR DE CONEXIÓN");
+                    return false;
+                }
+                PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, datosMedPac.getAlergias());
+                ps.setString(2, datosMedPac.getMedicamentos());
+                ps.setString(3, datosMedPac.getCirugiasPre());
+                ps.setString(4, datosMedPac.getTipoSangre());
+                ps.setString(5, datosMedPac.getEnfCronicas());
+                ps.setInt(6, idPaciente);
+
+
+                int res = ps.executeUpdate();
+                if (res > 0) {
+                    ResultSet rs = ps.getGeneratedKeys();
+                    if (rs.next()) {
+                        datosMedPac.setId(rs.getInt(1));
+                    }
+                    rs.close();
+                }
+
+                ps.close();
+                closeConnection();
+                return res == 1;
+            } catch (SQLException e) {
+                e.printStackTrace();
                 return false;
             }
-            preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, datosMedPac.getAlergias());
-            preparedStatement.setString(1, datosMedPac.getMedicamentos());
-            preparedStatement.setString(1, datosMedPac.getCirugiasPre());
-            preparedStatement.setString(1, datosMedPac.getTipoSangre());
-            preparedStatement.setString(1, datosMedPac.getEnfCronicas());
-            res = preparedStatement.executeUpdate();
-            preparedStatement.close();
-            closeConnection();
-            return res == 1;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return false;
     }
 
     @Override
     public boolean update(DatosMedPac datosMedPac) {
-        PreparedStatement preparedStatement = null;
-        int res = 0;
 
         String query = "UPDATE datosPaciente SET ALERGIAS = ?, MEDICAMENTOS = ?, CIRUGIASPREVIAS = ?, TIPOSANGRE = ?, ENFERMEDADESCRONICAS = ? WHERE ID = ?";
 
         try {
-            preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, datosMedPac.getAlergias());
-            preparedStatement.setString(2, datosMedPac.getMedicamentos());
-            preparedStatement.setString(3, datosMedPac.getCirugiasPre());
-            preparedStatement.setString(4, datosMedPac.getTipoSangre());
-            preparedStatement.setString(5, datosMedPac.getEnfCronicas());
+            if (!openConnection()) return false;
 
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, datosMedPac.getAlergias());
+            ps.setString(2, datosMedPac.getMedicamentos());
+            ps.setString(3, datosMedPac.getCirugiasPre());
+            ps.setString(4, datosMedPac.getTipoSangre());
+            ps.setString(5, datosMedPac.getEnfCronicas());
+            ps.setInt(6, datosMedPac.getId());
 
-            res = preparedStatement.executeUpdate();
+            int res = ps.executeUpdate();
+            ps.close();
+            closeConnection();
+            return res == 1;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-
-        return res > 0;
     }
 
     @Override
     public boolean delete(DatosMedPac datosMedPac) {
-                PreparedStatement preparedStatement = null;
-                String query = "DELETE FROM datosPaciente WHERE ID = ?";
-                int res = 0;
+        String query = "DELETE FROM datosPaciente WHERE ID = ?";
+        try {
+            if (!openConnection()) return false;
 
-                try {
-                    if (!openConnection()) {
-                        System.out.println("ERROR DE CONEXIÓN");
-                        return false;
-                    }
-                    preparedStatement = connection.prepareStatement(query);
-                    preparedStatement.setString(1, datosMedPac.getAlergias());
-                    preparedStatement.setString(1, datosMedPac.getMedicamentos());
-                    preparedStatement.setString(1, datosMedPac.getCirugiasPre());
-                    preparedStatement.setString(1, datosMedPac.getTipoSangre());
-                    preparedStatement.setString(1, datosMedPac.getEnfCronicas());
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, datosMedPac.getId());
 
-                    res = preparedStatement.executeUpdate();
-                    preparedStatement.close();
-                    closeConnection();
-                    return res == 1;
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-                return false;
+            int res = ps.executeUpdate();
+            ps.close();
+            closeConnection();
+            return res == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
     public DatosMedPac findById(Integer id) {
-                Statement statement = null;
-                ResultSet resultSet = null;
-                DatosMedPac datosMedPac = null;
-                String sql ="SELECT * FROM datosPaciente WHERE ID = %d";
-                try
-                {
-                    if( !openConnection() )
-                    {
-                        return null;
-                    }
-                    sql = String.format(sql, id);
-                    statement = connection.createStatement();
-                    resultSet = statement.executeQuery( sql );
-                    if( !openConnection() )
-                    {
-                        return null;
-                    }
-                    sql = String.format(sql, id);
+        String sql = "SELECT * FROM datosPaciente WHERE ID = ?";
+        try {
+            if (!openConnection()) return null;
 
-                    while( resultSet.next( ) )
-                    {
-                        datosMedPac = new DatosMedPac();
-                        datosMedPac.setId( resultSet.getInt( "ID" ) );
-                        datosMedPac.setAlergias( resultSet.getString( "ALERGIAS" ) );
-                        datosMedPac.setMedicamentos( resultSet.getString( "MEDICAMENTOS" ) );
-                        datosMedPac.setCirugiasPre( resultSet.getString( "CIRUGIASPREVIAS" ) );
-                        datosMedPac.setTipoSangre( resultSet.getString( "TIPOSANGRE" ) );
-                        datosMedPac.setEnfCronicas( resultSet.getString( "ENFERMEDADESCRONICAS" ) );
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
 
-                    }
-                    resultSet.close( );
-                    closeConnection( );
-                    return datosMedPac;
-                }
-                catch (SQLException e)
-                {
-                    return null;
-                }    }
+            DatosMedPac datosMedPac = null;
+            if (rs.next()) {
+                datosMedPac = new DatosMedPac();
+                datosMedPac.setId(rs.getInt("ID"));
+                datosMedPac.setAlergias(rs.getString("ALERGIAS"));
+                datosMedPac.setMedicamentos(rs.getString("MEDICAMENTOS"));
+                datosMedPac.setCirugiasPre(rs.getString("CIRUGIASPREVIAS"));
+                datosMedPac.setTipoSangre(rs.getString("TIPOSANGRE"));
+                datosMedPac.setEnfCronicas(rs.getString("ENFERMEDADESCRONICAS"));
+            }
+
+            rs.close();
+            ps.close();
+            closeConnection();
+            return datosMedPac;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+}

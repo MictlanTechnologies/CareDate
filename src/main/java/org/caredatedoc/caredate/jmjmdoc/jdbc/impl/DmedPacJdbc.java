@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface DmedPacJdbc {
     List<DatosMedPac> findAll();
-    boolean save (DatosMedPac datosMedPac);
+    boolean save (DatosMedPac datosMedPac, int idPaciente);
     boolean update (DatosMedPac datosMedPac);
     boolean delete (DatosMedPac datosMedPac);
     DatosMedPac findById (Integer id);

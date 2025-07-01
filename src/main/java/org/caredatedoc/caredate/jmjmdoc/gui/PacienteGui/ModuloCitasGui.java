@@ -12,7 +12,7 @@ public class ModuloCitasGui extends JFrame {
         setLocationRelativeTo(null);
 
         // Panel principal con fondo oscuro
-        JPanel panel = new JPanel(new GridLayout(4, 1, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(6, 1, 10, 10));
         panel.setBackground(Color.decode("#2E2E2C"));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -33,11 +33,23 @@ public class ModuloCitasGui extends JFrame {
         agendarBtn.setForeground(Color.decode("#2E2E2C"));
         panel.add(agendarBtn);
 
-        JButton historialBtn = new JButton("Ver Historial de Citas");
-        historialBtn.setFont(new Font("Aptos Mono", Font.BOLD, 14));
-        historialBtn.setBackground(Color.decode("#B6AC94"));
-        historialBtn.setForeground(Color.decode("#2E2E2C"));
-        panel.add(historialBtn);
+        JButton consultarBtn = new JButton("Consultar Citas");
+        consultarBtn.setFont(new Font("Aptos Mono", Font.BOLD, 14));
+        consultarBtn.setBackground(Color.decode("#B6AC94"));
+        consultarBtn.setForeground(Color.decode("#2E2E2C"));
+        panel.add(consultarBtn);
+
+        JButton eliminarBtn = new JButton("Eliminar Cita");
+        eliminarBtn.setFont(new Font("Aptos Mono", Font.BOLD, 14));
+        eliminarBtn.setBackground(Color.decode("#B6AC94"));
+        eliminarBtn.setForeground(Color.decode("#2E2E2C"));
+        panel.add(eliminarBtn);
+
+        JButton menuBtn = new JButton("Menú Principal");
+        menuBtn.setFont(new Font("Aptos Mono", Font.BOLD, 14));
+        menuBtn.setBackground(Color.decode("#D5D0C3"));
+        menuBtn.setForeground(Color.decode("#2E2E2C"));
+        panel.add(menuBtn);
 
         add(panel);
 
@@ -47,10 +59,19 @@ public class ModuloCitasGui extends JFrame {
             dispose();
         });
 
-        /*historialBtn.addActionListener(e -> {
-            HistorialCitasGui historial = new HistorialCitasGui(clinicaSeleccionada);
-            historial.setVisible(true);
-            dispose();
-        });*/
+        consultarBtn.addActionListener(e -> {
+            ConsultarCitasGui consultarGui = new ConsultarCitasGui(clinicaSeleccionada);
+            consultarGui.setVisible(true);
+        });
+
+        eliminarBtn.addActionListener(e -> {
+            EliminarCitasGui eliminarGui = new EliminarCitasGui(clinicaSeleccionada);
+            eliminarGui.setVisible(true);
+        });
+
+        menuBtn.addActionListener(e -> {
+            MenuPrincipalGui menu = new MenuPrincipalGui();
+            menu.setVisible(true);
+        });
     }
 }

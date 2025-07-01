@@ -1,5 +1,7 @@
 package org.caredatedoc.caredate.jmjmdoc.gui.PacienteGui;
 
+import org.caredatedoc.caredate.jmjmdoc.gui.PacienteGui.BdCitasGui;
+import org.caredatedoc.caredate.jmjmdoc.gui.PacienteGui.ModuloCitasGui;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
@@ -13,11 +15,13 @@ import java.util.Date;
 import java.util.Properties;
 
 public class AgendarCitaGui extends JFrame {
+    private final String clinicaSeleccionada;
     private UtilDateModel dateModel;
     private JDatePickerImpl datePicker;
     private JComboBox<String> horarioCombo;
 
     public AgendarCitaGui(String clinicaSeleccionada) {
+        this.clinicaSeleccionada = clinicaSeleccionada;
         setTitle("Agendar Cita");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(400, 250);
@@ -97,6 +101,13 @@ public class AgendarCitaGui extends JFrame {
 
         JOptionPane.showMessageDialog(this,
                 "Cita agendada para el " + fechaStr + " a las " + horario + ".");
+
+        // Persistir la cita en la "BD" en memoria
+        BdCitasGui.agregarCita(clinicaSeleccionada, fechaStr + " " + horario);
+
+        // Regresar al módulo de citas para continuar
+        ModuloCitasGui modulo = new ModuloCitasGui(clinicaSeleccionada);
+        modulo.setVisible(true);
         dispose();
     }
 

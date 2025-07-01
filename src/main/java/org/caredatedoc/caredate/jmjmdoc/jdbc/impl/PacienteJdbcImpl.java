@@ -79,7 +79,7 @@ public class PacienteJdbcImpl extends Conexion<Paciente> implements PacienteJdbc
                 return false;
             }
 
-            preparedStatement = connection.prepareStatement(query);
+            preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             LocalDate fechaLocal = LocalDate.parse(paciente.getFechaNac(), formatter);
@@ -94,6 +94,14 @@ public class PacienteJdbcImpl extends Conexion<Paciente> implements PacienteJdbc
             preparedStatement.setString(7, paciente.getEmail());
 
             int res = preparedStatement.executeUpdate();
+
+            if (res > 0) {
+                ResultSet keys = preparedStatement.getGeneratedKeys();
+                if (keys.next()) {
+                    paciente.setId(keys.getInt(1));
+                }
+                keys.close();
+            }
 
             preparedStatement.close();
             closeConnection();

@@ -56,7 +56,7 @@ public class PacienteGui extends JFrame {
         curpField = new JTextField(); curpField.setBackground(entrada); curpField.setFont(fontTxt);
         panel.add(curpField);
 
-        JLabel fechaLbl = new JLabel("Fecha de Nacimiento (YYYY-MM-DD):");
+        JLabel fechaLbl = new JLabel("Fecha de Nacimiento (DD/MM/YYYY):");
         fechaLbl.setForeground(texto); fechaLbl.setFont(fontSub);
         panel.add(fechaLbl);
         fechaNacField = new JTextField(); fechaNacField.setBackground(entrada); fechaNacField.setFont(fontTxt);
@@ -101,7 +101,13 @@ public class PacienteGui extends JFrame {
                     sexoBox.getSelectedItem().toString().charAt(0)
             );
 
-            RegistroDomicilioGui domicilioGui = new RegistroDomicilioGui();
+            boolean ok = org.caredatedoc.caredate.jmjmdoc.jdbc.impl.PacienteJdbcImpl.getInstance().save(paciente);
+            if (!ok) {
+                JOptionPane.showMessageDialog(this, "No se pudo guardar el paciente en la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            RegistroDomicilioGui domicilioGui = new RegistroDomicilioGui(paciente);
             domicilioGui.setVisible(true);
 
             dispose();

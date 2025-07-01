@@ -1,11 +1,16 @@
 package org.caredatedoc.caredate.jmjmdoc.gui.PacienteGui;
 
+
+import org.caredatedoc.caredate.jmjmdoc.jdbc.impl.DmedPacJdbcImpl;
+import org.caredatedoc.caredate.jmjmdoc.model.DatosMedPac;
+import org.caredatedoc.caredate.jmjmdoc.model.Paciente;
 import javax.swing.*;
 import java.awt.*;
 
 public class DatosMedicosGui extends JFrame {
-
-    public DatosMedicosGui() {
+    private final Paciente paciente;
+    public DatosMedicosGui(Paciente paciente) {
+        this.paciente = paciente;
         setTitle("Datos Médicos del Paciente");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(500, 400);
@@ -83,8 +88,25 @@ public class DatosMedicosGui extends JFrame {
 
         // Acción del botón
         finalizarBtn.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Datos médicos registrados correctamente.",
-                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            DatosMedPac dm = new DatosMedPac();
+            dm.setAlergias(alergiasField.getText());
+            dm.setEnfCronicas(enfermedadesField.getText());
+            dm.setMedicamentos(medicamentosField.getText());
+            dm.setCirugiasPre(cirugiasField.getText());
+            dm.setTipoSangre(tipoSangreBox.getSelectedItem().toString());
+
+            if (paciente.getId() == null) {
+                JOptionPane.showMessageDialog(this,
+                        "El identificador del paciente es inválido",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            boolean saved = DmedPacJdbcImpl.getInstance().save(dm, paciente.getId());
+            if (!saved) {
+                JOptionPane.showMessageDialog(this, "No se pudieron guardar los datos médicos", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
             int opcion = JOptionPane.showOptionDialog(
                     this,

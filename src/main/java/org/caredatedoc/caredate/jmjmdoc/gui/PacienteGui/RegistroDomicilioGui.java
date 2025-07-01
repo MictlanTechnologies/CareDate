@@ -1,10 +1,16 @@
 package org.caredatedoc.caredate.jmjmdoc.gui.PacienteGui;
 
+import org.caredatedoc.caredate.jmjmdoc.jdbc.impl.DireccionJdbcImpl;
+import org.caredatedoc.caredate.jmjmdoc.model.Direccion;
+import org.caredatedoc.caredate.jmjmdoc.model.Paciente;
 import javax.swing.*;
 import java.awt.*;
 
 public class RegistroDomicilioGui extends JFrame {
-    public RegistroDomicilioGui() {
+    private final Paciente paciente;
+
+    public RegistroDomicilioGui(Paciente paciente) {
+        this.paciente = paciente;
         setTitle("Registro de Domicilio del Paciente");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(400, 300);
@@ -61,7 +67,25 @@ public class RegistroDomicilioGui extends JFrame {
         add(panel);
 
         siguienteBtn.addActionListener(e -> {
-            DatosMedicosGui datosMedicosGui = new DatosMedicosGui();
+            Direccion dir = new Direccion();
+            dir.setAlcaldiaP(alcaldiaField.getText());
+            dir.setColoniaP(coloniaField.getText());
+            dir.setCalleP(calleField.getText());
+            try {
+                dir.setNumeroP(Integer.parseInt(numeroField.getText()));
+                dir.setCpP(Integer.parseInt(cpField.getText()));
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Número o CP inválido", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            DireccionJdbcImpl jdbc = DireccionJdbcImpl.getInstance();
+            if (!jdbc.save(dir) || !jdbc.guardarRelacionPacienteDireccion(paciente.getId(), dir.getId())) {
+                JOptionPane.showMessageDialog(this, "No se pudo guardar la dirección", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            DatosMedicosGui datosMedicosGui = new DatosMedicosGui(paciente);
             datosMedicosGui.setVisible(true);
             dispose();
         });

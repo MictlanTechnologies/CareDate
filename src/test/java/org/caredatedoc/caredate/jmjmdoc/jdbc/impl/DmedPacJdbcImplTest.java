@@ -34,7 +34,7 @@ class DmedPacJdbcImplTest {
         datosMedPac.setCirugiasPre("verv");
         datosMedPac.setTipoSangre("cfrf");
         datosMedPac.setEnfCronicas("frfr");
-        assertTrue(dmedPacJdbc.save(datosMedPac));
+        assertTrue(dmedPacJdbc.save(datosMedPac, 1));
     }
 
     @Test
